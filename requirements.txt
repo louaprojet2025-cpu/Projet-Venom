@@ -1,1 +1,9 @@
+# Fichier : /requirements.txt (Mis à jour)
+
+# Pour l'analyse d'émotion via Hugging Face
+transformers
+torch
+
+# Pour l'analyse de la complexité lexicale
+textstat
 
