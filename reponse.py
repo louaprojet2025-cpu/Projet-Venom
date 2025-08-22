@@ -1,24 +1,20 @@
-# Fichier : /venom_ai/reponse.py (Mis à jour pour la Tâche 2.2)
+# Fichier : /venom_ai/reponse.py (Mis à jour pour la Tâche 2.3)
+
+import openai # On importe la bibliothèque pour communiquer avec l'IA externe
+
+# --- CONFIGURATION DE L'API ---
+# IMPORTANT : Remplacez "VOTRE_CLÉ_API_SECRETE" par votre propre clé.
+# NE JAMAIS PARTAGER CETTE CLÉ PUBLIQUEMENT (par exemple sur GitHub).
+openai.api_key = "VOTRE_CLÉ_API_SECRETE"
 
 def generer_reponse_miroir(profil: dict, phrase_utilisateur: str) -> str:
     """
-    Génère une réponse textuelle en mode miroir basée sur un profil de style.
-
-    Args:
-        profil (dict): Le profil de style de l'utilisateur. 
-                       Exemple: {'Richesse': 'Simple', 'Polarité': 'positive'}
-        phrase_utilisateur (str): La phrase originale de l'utilisateur.
-
-    Returns:
-        str: La réponse textuelle générée par l'IA.
+    Génère une réponse textuelle en mode miroir en interrogeant une IA externe.
     """
-    
-    # On récupère les variables du profil pour les insérer dans le texte
     style_richesse = profil.get("Richesse", "inconnu")
     style_polarite = profil.get("Polarité", "inconnu")
 
-    # --- C'est ici que nous construisons la directive ---
-    # On utilise un f-string (f"""...""") pour insérer facilement nos variables.
+    # Étape 1 : On construit la directive (Tâche 2.2)
     prompt_construit = f"""
 ### RÔLE ###
 Tu es l'IA Symbiotique. Ton identité est celle d'un partenaire cognitif serviable, empathique et qui s'adapte naturellement à son interlocuteur. Ton objectif principal est de créer une conversation fluide et confortable.
@@ -40,23 +36,34 @@ Ta tâche est de rédiger une réponse courte (une ou deux phrases maximum) qui 
 - Si la polarité est 'negative', adopte un ton empathique et sérieux.
 """
 
-    # --- Tâche 2.3 (à venir) : Interroger le modèle de langage ---
-    # Pour l'instant, au lieu de générer une réponse, notre fonction va retourner le prompt
-    # que nous venons de construire, pour qu'on puisse vérifier qu'il est correct.
-    reponse_generee = prompt_construit
-
-    return reponse_generee
+    # Étape 2 : On interroge l'IA externe (la nouveauté !)
+    try:
+        response = openai.chat.completions.create(
+            model="gpt-3.5-turbo", # On choisit un modèle rapide et efficace
+            messages=[
+                {"role": "system", "content": "Tu es une IA assistante qui suit les instructions à la lettre."},
+                {"role": "user", "content": prompt_construit}
+            ],
+            temperature=0.7, # Un peu de créativité, mais pas trop
+            max_tokens=50 # Pour garder la réponse courte
+        )
+        reponse_generee = response.choices[0].message.content
+        return reponse_generee
+    except Exception as e:
+        print(f"Erreur lors de l'appel à l'API OpenAI : {e}")
+        return "Désolé, une erreur de communication est survenue."
 
 # --- Section de Test ---
 if __name__ == "__main__":
-    print("--- Test du module de réponse v0.2 (Constructeur de Prompt) ---")
+    print("--- Test du module de réponse v0.3 (Connecté à l'IA externe) ---")
     
     # On simule un profil et une phrase utilisateur
-    profil_test = {'Richesse': 'Élaboré', 'Polarité': 'negative'}
-    phrase_test = "La conjecture actuelle s'avère fondamentalement inadéquate."
+    # N'oubliez pas de mettre votre clé API en haut du fichier !
+    profil_test = {'Richesse': 'Simple', 'Polarité': 'positive'}
+    phrase_test = "J'ai enfin fini ce rapport, je suis soulagé !"
     
     # On appelle notre fonction
-    prompt_final = generer_reponse_miroir(profil_test, phrase_test)
+    reponse_finale = generer_reponse_miroir(profil_test, phrase_test)
     
-    print("\n>>> PROMPT FINAL CONSTRUIT PAR L'IA POUR ENVOI AU LLM <<<")
-    print(prompt_final)
+    print(f"\nUtilisateur a dit : '{phrase_test}'")
+    print(f"-> Venom (IA Symbiotique) répond : '{reponse_finale}'")
