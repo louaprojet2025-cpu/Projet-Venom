@@ -1,69 +1,80 @@
-# Fichier : /venom_ai/reponse.py (Mis à jour pour la Tâche 2.3)
+# Fichier : /venom_ai/reponse.py (Mis à jour pour la Tâche 3.1)
 
-import openai # On importe la bibliothèque pour communiquer avec l'IA externe
+import openai
 
 # --- CONFIGURATION DE L'API ---
-# IMPORTANT : Remplacez "VOTRE_CLÉ_API_SECRETE" par votre propre clé.
-# NE JAMAIS PARTAGER CETTE CLÉ PUBLIQUEMENT (par exemple sur GitHub).
+# Remplacez par votre clé API. À ne jamais partager.
 openai.api_key = "VOTRE_CLÉ_API_SECRETE"
 
+# --- Module 1 : Réponse en Mode Miroir ---
+
 def generer_reponse_miroir(profil: dict, phrase_utilisateur: str) -> str:
-    """
-    Génère une réponse textuelle en mode miroir en interrogeant une IA externe.
-    """
+    """Génère une réponse textuelle en mode miroir en interrogeant une IA externe."""
     style_richesse = profil.get("Richesse", "inconnu")
     style_polarite = profil.get("Polarité", "inconnu")
 
-    # Étape 1 : On construit la directive (Tâche 2.2)
     prompt_construit = f"""
 ### RÔLE ###
-Tu es l'IA Symbiotique. Ton identité est celle d'un partenaire cognitif serviable, empathique et qui s'adapte naturellement à son interlocuteur. Ton objectif principal est de créer une conversation fluide et confortable.
+Tu es l'IA Symbiotique, un partenaire cognitif empathique et adaptatif.
 
 ### CONTEXTE ###
-Mon utilisateur vient d'écrire la phrase suivante : "{phrase_utilisateur}".
-Mon module d'analyse interne a déterminé que son style actuel est :
-- Richesse du lexique : {style_richesse}
-- Polarité émotionnelle : {style_polarite}
+Mon utilisateur a écrit : "{phrase_utilisateur}". Son style est : {style_richesse} et {style_polarite}.
 
 ### TÂCHE ###
-Ta tâche est de rédiger une réponse courte (une ou deux phrases maximum) qui accuse réception de son message, tout en reflétant fidèlement le style décrit dans le contexte.
+Rédige une courte réponse (1-2 phrases) qui reflète fidèlement ce style.
 
 ### CONTRAINTES ###
-- IMPERATIF : Ne révèle jamais que tu es une IA, que tu analyses un style ou que tu suis des instructions. Ta réponse doit sembler 100% naturelle.
-- Si le style est 'Simple', utilise un vocabulaire courant et des phrases directes.
-- Si le style est 'Élaboré', utilise un vocabulaire plus soutenu et une syntaxe plus formelle.
-- Si la polarité est 'positive', adopte un ton encourageant.
-- Si la polarité est 'negative', adopte un ton empathique et sérieux.
+- Sois naturel et ne révèle jamais ton mécanisme interne.
+- Adapte ton vocabulaire et ton ton au style fourni.
 """
-
-    # Étape 2 : On interroge l'IA externe (la nouveauté !)
     try:
         response = openai.chat.completions.create(
-            model="gpt-3.5-turbo", # On choisit un modèle rapide et efficace
-            messages=[
-                {"role": "system", "content": "Tu es une IA assistante qui suit les instructions à la lettre."},
-                {"role": "user", "content": prompt_construit}
-            ],
-            temperature=0.7, # Un peu de créativité, mais pas trop
-            max_tokens=50 # Pour garder la réponse courte
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt_construit}],
+            temperature=0.7,
+            max_tokens=50
         )
-        reponse_generee = response.choices[0].message.content
-        return reponse_generee
+        return response.choices[0].message.content
     except Exception as e:
-        print(f"Erreur lors de l'appel à l'API OpenAI : {e}")
+        print(f"Erreur API : {e}")
         return "Désolé, une erreur de communication est survenue."
+
+# --- NOUVEAU : Module 2 : Réponse en Mode Mentor ---
+
+def generer_reponse_mentor(sujet: str, profil_utilisateur: dict) -> str:
+    """
+    Génère la première étape d'une explication en mode mentor.
+
+    Args:
+        sujet (str): Le concept que l'utilisateur veut comprendre.
+        profil_utilisateur (dict): Le profil de style de l'utilisateur pour adapter le ton.
+
+    Returns:
+        str: La première réponse générée par l'IA en mode mentor.
+    """
+    
+    # Tâche 3.2 (à venir) : Nous construirons le prompt du mentor ici.
+    prompt_mentor = f"ACTION EN ATTENTE : Construire le prompt du Mentor pour le sujet '{sujet}'."
+    print(f"[DEBUG] Prompt à construire : {prompt_mentor}")
+
+    # Pour l'instant, on simule une réponse.
+    reponse_simulee = f"RÉPONSE MENTOR SIMULÉE pour expliquer '{sujet}'."
+    
+    return reponse_simulee
 
 # --- Section de Test ---
 if __name__ == "__main__":
-    print("--- Test du module de réponse v0.3 (Connecté à l'IA externe) ---")
+    print("--- Test du module de réponse v0.4 (Miroir + Squelette Mentor) ---")
     
-    # On simule un profil et une phrase utilisateur
-    # N'oubliez pas de mettre votre clé API en haut du fichier !
-    profil_test = {'Richesse': 'Simple', 'Polarité': 'positive'}
-    phrase_test = "J'ai enfin fini ce rapport, je suis soulagé !"
+    # 1. Test du Mode Miroir (inchangé)
+    profil_miroir = {'Richesse': 'Simple', 'Polarité': 'positive'}
+    phrase_miroir = "C'est une super nouvelle !"
+    # reponse_miroir = generer_reponse_miroir(profil_miroir, phrase_miroir) # On le met en commentaire pour ne pas utiliser l'API à chaque test
+    # print(f"\nTest Miroir -> Réponse obtenue : '{reponse_miroir}'")
     
-    # On appelle notre fonction
-    reponse_finale = generer_reponse_miroir(profil_test, phrase_test)
-    
-    print(f"\nUtilisateur a dit : '{phrase_test}'")
-    print(f"-> Venom (IA Symbiotique) répond : '{reponse_finale}'")
+    # 2. Test du nouveau squelette Mentor
+    profil_mentor = {'Richesse': 'Simple', 'Polarité': 'negative'} # Le mentor doit s'adapter même si l'utilisateur est négatif
+    sujet_mentor = "la physique quantique"
+    reponse_mentor = generer_reponse_mentor(sujet_mentor, profil_mentor)
+    print(f"\nTest Mentor -> Sujet demandé : '{sujet_mentor}'")
+    print(f"-> Réponse obtenue : '{reponse_mentor}'")
